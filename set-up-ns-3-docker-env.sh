@@ -22,7 +22,7 @@ apt install docker-ce
 ###################################
 # Step 2:
 #   - create docker group
-#   - add current uset it
+#   - add current user to it
 ###################################
 # more details at: https://docs.docker.com/install/linux/linux-postinstall/
 
@@ -32,7 +32,19 @@ usermod -a -G docker $1
 
 ###################################
 # Step 3:
-#   - pull my ns-3 docker image
+#   - pull my ns-3.26 docker image
 ###################################
-docker pull hamelik/ns3.26libdependencies:first
+
+my_ns_3_26_docker_image="hamelik/ns3.26libdependencies:first"
+docker pull $my_ns_3_26_docker_image
+
+#########################################
+# Step 4:
+#   - get the ns-all-in-one-3.26 project
+#########################################
+
+ns_allinone_3_26_project="ns-allinone-3.26"
+wget http://www.nsnam.org/release/$ns_allinone_3_26_project.tar.bz2 -P . && tar xjf $ns_allinone_3_26_project.tar.bz2
+
+chown -R $1: $ns_allinone_3_26_project && chmod -R u+rwx $ns_allinone_3_26_project
 su - $1

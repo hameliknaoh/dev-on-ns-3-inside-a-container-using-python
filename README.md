@@ -1,4 +1,4 @@
-# Develop and Prototype Networking Simulations on NS-3 Using Python
+# Develop and Prototype Networking Simulations on NS-3 Inside a Docker Container Using Python
 
 The discrete-event network simulator [ns-3](https://www.nsnam.org/) is widely used by both the research and the industry communities to prototype and experiment on networking protocols and systems e.g. [Deadline-Aware Datacenter TCP (D2TCP) (Sigcomm'12)](https://ai.google/research/pubs/pub37678) and [DeTail: Reducing the Flow Completion Time Tail in Datacenter Networks (Sigcomm'12)](https://research.fb.com/publications/detail-reducing-the-flow-completion-time-tail-in-datacenter-networks/).
 
@@ -13,8 +13,8 @@ I will be also providing docker images to automate the python bindings generatio
 Going ahead, we will be setting up our ns-3 docker box on a Linux environment. The attached `build-script.sh` to the repository has been tested on a `Ubuntu-18.04` machine with the `zsh` interpreter, but it should also work fine for the rest of Debian and Ubuntu-based Linux distributions that are supported by Docker Inc.: for more details, please check [the list of Linux platforms supported by Docker Inc](https://docs.docker.com/install/#supported-platforms). Clone the `git` repository, and start running the `build-script.sh` to update the system packages, install docker and pull [my ns-3 docker image](https://hub.docker.com/r/hamelik/ns3.26libdependencies/) from the Docker Hub:
 
 ```
-  $ git clone https://github.com/hameliknaoh/dev-on-ns-3-using-python.git
-  $ cd dev-on-ns-3-using-python/
+  $ git clone https://github.com/hameliknaoh/dev-on-ns-3-inside-a-container-using-python.git
+  $ cd dev-on-ns-3-inside-a-container-using-python/
   $ ./build-script.sh
 ```
 
@@ -27,16 +27,34 @@ To verify that the setup process was successfull, we should be able to have the 
   hamelik/ns3.26libdependencies   first               c53ffa37a8e1        9 months ago        4.1GB
 ```
 
-To start an `ns-3 docker container` for development and API scanning with python, we will be using the `hamelik/ns3.26libdependencies` docker image, and we will issuing the command `docker run`. Let's call our ns-3 docker container `Hello-NS-3.26`:
+We should be also able to have the `ns-allinone-3.26.tar.bz2` tarball archive downloaded from the official ns-3 source, and decompressed to the `ns-allinone-3.26 ` folder.
 
 ```
-  $ docker run -it --name Hello-NS-3.26 hamelik/ns3.26libdependencies:first /bin/bash
+  $ cd dev-on-ns-3-inside-a-container-using-python/
+  $ ls -a
+  
+  .   build-script.sh  ns-allinone-3.26          README.md
+  ..  .git             ns-allinone-3.26.tar.bz2  set-up-ns-3-docker-env.sh
 ```
 
-The `ns-3.26 home directory` is located under `/home/ns-allinone-3.26/ns-3.26`. Navigate under this path using the `cd` command, and you will be able to list the following items, in particular, the `waf` build automation tool:
+# Develop and Debug Interactively on NS-3 Inside a Docker Container
+To start an `ns-3 docker container` for development and API scanning with python, we will be using the `hamelik/ns3.26libdependencies` docker image [pulled from my personal hub space](https://hub.docker.com/r/hamelik/ns3.26libdependencies/). We will be issuing the command `docker run` and we will be mounting the `ns-allinone-3.26` folder as a volume in the container using the `-v` flag, under`/usr/local/`. Let's call our ns-3 docker container `Hello-NS-3.26`:
 
 ```
-  # cd /home/ns-allinone-3.26/ns-3.26/
+  $ cd dev-on-ns-3-inside-a-container-using-python/
+  $ docker run -it \
+    -v `pwd`/ns-allinone-3.26/:/usr/local/ns-allinone-3.26/ \
+    --name Hello-NS-3.26 hamelik/ns3.26libdependencies:first
+```
+
+The `ns-3.26 home directory` is located under:
+   * `./dev-on-ns-3-inside-a-container-using-python/ns-allinone-3.26/ns-3.26/` at the host side.
+   * `/usr/local/ns-allinone-3.26/ns-3.26/` at the `Hello-NS-3.26` docker container side.
+  
+At the container side, navigate under `/usr/local/ns-allinone-3.26/ns-3.26/` using the `cd` command, and you will be able to list the following items, in particular, the `waf` build automation tool:
+
+```
+  # cd /usr/local/ns-allinone-3.26/ns-3.26/
   # ls -a
   
   .                                             LICENSE        build     testpy-output  waf-tools
@@ -47,12 +65,16 @@ The `ns-3.26 home directory` is located under `/home/ns-allinone-3.26/ns-3.26`. 
   CHANGES.html                                  bindings       test.py   waf
 ```
 
+Fast forward, it is all setted-up now to be able to edit/develop python code on `ns-3` at the host side (left side of the following figure) using your favourite code editor (I recommend [vscode](https://code.visualstudio.com/docs/setup/linux)), and run/debug it interactively at the container side (right side of the following figure) from the terminal.
+
+![](./images/screenshot-dev-and-debug-on-ns-3-inside-a-container.png)
+
 # Configure, Build and Run Python Simulations in NS-3
 `ns-3` could be configured to be built with a `debug`, `release` or `optimized` [profile](https://www.nsnam.org/docs/tutorial/html/getting-started.html#build-profiles). In this guide, we will be developing with the `debug` profile. From the `ns-3.26 home directory`, we get the network simulator ready for developping following these four steps:
 
 ## Step 1: Clean the previous build (optional, but a good practice)
 ```
-  # cd /home/ns-allinone-3.26/ns-3.26/
+  # cd /usr/local/ns-allinone-3.26/ns-3.26/
   # ./waf clean
   
   'clean' finished successfully (0.191s)
@@ -70,8 +92,8 @@ The `ns-3.26 home directory` is located under `/home/ns-allinone-3.26/ns-3.26`. 
   </pre>
 </summary>
 <p>
-Setting top to                           : /home/ns-allinone-3.26/ns-3.26 <br>
-Setting out to                           : /home/ns-allinone-3.26/ns-3.26/build <br>
+Setting top to                           : /usr/local/ns-allinone-3.26/ns-3.26 <br>
+Setting out to                           : /usr/local/ns-allinone-3.26/ns-3.26/build <br>
 Checking for 'gcc' (C compiler)          : /usr/bin/gcc <br>
 Checking for cc version                  : 4.9.4 <br>
 Checking for 'g++' (C++ compiler)        : /usr/bin/g++ <br>
@@ -185,7 +207,7 @@ XmlIo                         : enabled <br>
   </pre>
 </summary>
 <p>
-Waf: Entering directory `/home/ns-allino  ne-3.26/ns-3.26/build' <br>
+Waf: Entering directory `/usr/local/ns-allino  ne-3.26/ns-3.26/build' <br>
 [   1/2631] Compiling install-ns3-header: ns3/antenna-model.h <br>
 [   2/2631] Compiling install-ns3-header: ns3/isotropic-antenna-model.h <br>
 [   4/2631] Compiling install-ns3-header: ns3/angles.h <br>
@@ -248,11 +270,11 @@ brite                     click                     openflow <br>
 The `ns-3` distribution is initially shipped with three python simulation scripts `first.py`, `second.py`, and `third.py`, that are located under `examples/tutorial/`. Let's run the first script that is simulating an echo message exchange between a client and a server.
 
 ```
-  # cd /home/ns-allinone-3.26/ns-3.26/
+  # cd /usr/local/ns-allinone-3.26/ns-3.26/
   # ./waf --pyrun examples/tutorial/first.py
   
-  Waf: Entering directory `/home/ns-allinone-3.26/ns-3.26/build'
-  Waf: Leaving directory `/home/ns-allinone-3.26/ns-3.26/build'
+  Waf: Entering directory `/usr/local/ns-allinone-3.26/ns-3.26/build'
+  Waf: Leaving directory `/usr/local/ns-allinone-3.26/ns-3.26/build'
   Build commands will be stored in build/compile_commands.json
   'build' finished successfully (2.054s)
 
@@ -291,7 +313,7 @@ To test that the ns-3 c++ api scanning is properly working, issue the command
 The `./waf --apiscan=all` automation tool will be scanning `all` the ns-3 modules
 
 ```
-  Waf: Entering directory `/home/ns-allinone-3.26/ns-3.26/build'
+  Waf: Entering directory `/usr/local/ns-allinone-3.26/ns-3.26/build'
   Modules to scan:  ['antenna', 'aodv', 'applications', 'bridge', 'buildings', 'config-store', 
                       'core', 'csma', 'csma-layout', 'dsdv', 'dsr', 'energy', 'fd-net-device', 
                       'flow-monitor', 'internet', 'internet-apps', 'lr-wpan', 'lte', 'mesh', 
@@ -304,7 +326,7 @@ The `./waf --apiscan=all` automation tool will be scanning `all` the ns-3 module
 When `waf` is done scanning, a green message will be outputted in the terminal specifying the operation duration as well as the successfully built modules.
 
 ```
-  Waf: Leaving directory `/home/ns-allinone-3.26/ns-3.26/build'
+  Waf: Leaving directory `/usr/local/ns-allinone-3.26/ns-3.26/build'
   Build commands will be stored in build/compile_commands.json
   'build' finished successfully (19m42.182s)
 
