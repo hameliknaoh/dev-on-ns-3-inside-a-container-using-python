@@ -5,4 +5,5 @@
 # more details at: https://docs.docker.com/install/linux/docker-ce/ubuntu/
 
 #!$SHELL
+echo "Setting up docker in your local machine..."
 sudo ./set-up-ns-3-docker-env.sh $USER

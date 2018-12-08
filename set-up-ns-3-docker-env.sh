@@ -36,7 +36,7 @@ usermod -a -G docker $1
 ###################################
 
 my_ns_3_26_docker_image="hamelik/ns3.26libdependencies:first"
-docker pull $my_ns_3_26_docker_image
+docker pull ${my_ns_3_26_docker_image}
 
 #########################################
 # Step 4:
@@ -44,7 +44,7 @@ docker pull $my_ns_3_26_docker_image
 #########################################
 
 ns_allinone_3_26_project="ns-allinone-3.26"
-wget http://www.nsnam.org/release/$ns_allinone_3_26_project.tar.bz2 -P . && tar xjf $ns_allinone_3_26_project.tar.bz2
+wget http://www.nsnam.org/release/${ns_allinone_3_26_project}.tar.bz2 -P . && tar xjf ${ns_allinone_3_26_project}.tar.bz2
 
-chown -R $1: $ns_allinone_3_26_project && chmod -R u+rwx $ns_allinone_3_26_project
+chown -R $1: ${ns_allinone_3_26_project} && chmod -R u+rwx ${ns_allinone_3_26_project}
 su - $1

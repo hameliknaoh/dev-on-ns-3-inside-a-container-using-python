@@ -10,12 +10,12 @@ I will be also providing docker images to automate the python bindings generatio
 
 # System Requirements and Setup
 
-Going ahead, we will be setting up our ns-3 docker box on a Linux environment. The attached `build-script.sh` to the repository has been tested on a `Ubuntu-18.04` machine with the `zsh` interpreter, but it should also work fine for the rest of Debian and Ubuntu-based Linux distributions that are supported by Docker Inc.: for more details, please check [the list of Linux platforms supported by Docker Inc](https://docs.docker.com/install/#supported-platforms). Clone the `git` repository, and start running the `build-script.sh` to update the system packages, install docker and pull [my ns-3 docker image](https://hub.docker.com/r/hamelik/ns3.26libdependencies/) from the Docker Hub:
+Going ahead, we will be setting up our ns-3 docker box on a Linux environment. The attached `build-script.sh` to the repository has been tested on a `Ubuntu-18.04` machine with the `zsh` interpreter, but it should also work fine for the rest of Debian and Ubuntu-based Linux distributions that are supported by Docker Inc.: for more details, please check [the list of Linux platforms supported by Docker Inc](https://docs.docker.com/install/#supported-platforms). Clone the `git` repository, and start running the `build-script.sh` by issuing the `make` command. The `build-script` will update the system packages, install docker and pull [my ns-3 docker image](https://hub.docker.com/r/hamelik/ns3.26libdependencies/) from the Docker Hub:
 
 ```
   $ git clone https://github.com/hameliknaoh/dev-on-ns-3-inside-a-container-using-python.git
   $ cd dev-on-ns-3-inside-a-container-using-python/
-  $ ./build-script.sh
+  $ make
 ```
 
 To verify that the setup process was successfull, we should be able to have the `hamelik/ns3.26libdependencies` docker image listed when the command `docker images` is issued:
@@ -50,7 +50,13 @@ To start an `ns-3 docker container` for development and API scanning with python
 The `ns-3.26 home directory` is located under:
    * `./dev-on-ns-3-inside-a-container-using-python/ns-allinone-3.26/ns-3.26/` at the host side.
    * `/usr/local/ns-allinone-3.26/ns-3.26/` at the `Hello-NS-3.26` docker container side.
-  
+
+Rather than typing the complete full `docker run` command, we make use of the `Makefile` attached to the project and simply type:
+
+```
+  $ make ns-3-container-run
+```
+
 At the container side, navigate under `/usr/local/ns-allinone-3.26/ns-3.26/` using the `cd` command, and you will be able to list the following items, in particular, the `waf` build automation tool:
 
 ```
@@ -357,5 +363,7 @@ If a specific module with the name `my_module` has only been changed, it can be 
 
 It is completely possible to detach and re-attach to the `Hello-NS-3.26` docker container at any time:
    * To detach from the `Hello-NS-3.26` docker container, you can use the shortcut `ctrl+p ctrl+q`
-   * To re-attach, you can issue the command `docker attach Hello-NS-3.26`
-   * To kill the docker container, detach first and then issue the command `docker kill Hello-NS-3.26`
+   * To re-attach, you can issue the command `docker attach Hello-NS-3.26` or `make ns-3-container-attach`
+   * To kill the docker container, detach first and then issue the command `docker kill Hello-NS-3.26` or `make ns-3-container-kill`
+   * To remove the container, you can issue the command `docker rm Hello-NS-3.26` or `make ns-3-container-rm`
+   * To clean the `ns-3-allinone` project, run `make clean`
